@@ -2,30 +2,44 @@ name: Build iOS App
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: macos-latest # Runs the job on a macOS runner[citation:3]
+    runs-on: macos-14
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup Xcode
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: '16.0' # Specify an Xcode version available on the runner[citation:7]
+    - name: Install XcodeGen
+      run: brew install xcodegen
 
-    - name: Build the App
+    - name: Generate Xcode project
+      run: xcodegen generate
+
+    - name: Build the app (unsigned)
       run: |
-        xcodebuild -project HiApp.xcodeproj -scheme HiApp -sdk iphoneos -configuration Release build
+        xcodebuild \
+          -project HiApp.xcodeproj \
+          -scheme HiApp \
+          -sdk iphoneos \
+          -configuration Release \
+          -derivedDataPath build \
+          CODE_SIGNING_ALLOWED=NO \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGN_IDENTITY="" \
+          build
 
-    - name: Upload App
+    - name: Package as .ipa (unsigned)
+      run: |
+        mkdir -p Payload
+        cp -R build/Build/Products/Release-iphoneos/HiApp.app Payload/
+        zip -r HiApp.ipa Payload
+
+    - name: Upload IPA
       uses: actions/upload-artifact@v4
       with:
-        name: HiApp
-        path: build/Release-iphoneos/*.app
+        name: HiApp-ipa
+        path: HiApp.ipa
