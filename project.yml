@@ -1,0 +1,17 @@
+name: HiApp
+options:
+  bundleIdPrefix: com.HiApp
+  deploymentTarget:
+    iOS: "26.7"
+targets:
+  HiApp:
+    type: application
+    platform: iOS
+    sources:
+      - HiApp
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.HiApp.Hi
+        SWIFT_VERSION: "5.0"
