@@ -1,0 +1,31 @@
+name: Build iOS App
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest # Runs the job on a macOS runner[citation:3]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '16.0' # Specify an Xcode version available on the runner[citation:7]
+
+    - name: Build the App
+      run: |
+        xcodebuild -project HiApp.xcodeproj -scheme HiApp -sdk iphoneos -configuration Release build
+
+    - name: Upload App
+      uses: actions/upload-artifact@v4
+      with:
+        name: HiApp
+        path: build/Release-iphoneos/*.app
